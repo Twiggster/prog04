@@ -1,0 +1,279 @@
+
+<!doctype html>
+<html>
+	<head>
+		<title>Prog04 - Frederich Schulz</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+
+	</head>
+	<body>
+		<h1>Prog04 - Frederich Schulz</h1>
+		<button id="addLine" onClick=newLine() form="inspot">Add Line</button>
+		<br />
+		<br />
+		<form id="people" onsubmit="return false">
+			<fieldset id="inspot">
+				<legend>People</legend>
+				<label>Given Name: </label><input type="text" id="gname0" placeholder="Sand"> 
+				<label>Surname: </label><input type="text" id="sname0" placeholder="Man"> 
+				<label>Solar Birth Day: </label><input type="number" id="bday0" min=1 max=31 placeholder=10> 
+				<label>Solar Birth Month: </label><input type="number" id="bmonth0" min=1 max=12 placeholder=06> 
+				<label>Solar Birth Year: </label><input type="number" id="byear0" placeholder=1997> 
+				<label>Country: </label><select id="country0">
+								<option value="USA">USA</option>
+								<option value="China">China</option>
+							</select>
+				<br />
+			</fieldset>
+			<br />			
+			<button type="submit" id="genObjectArray" onclick=createArray() form="people">Generate Object Array</button> <br /> <br />
+			<button type="button" id="genTable" onclick=writeTable() form="div1" form="people">Generate Table</button>
+		</form>
+		<div id="div1">	
+		</div>
+		<script>
+			//counter for input
+			var index = 1;	
+			//generates new lines  
+			function newLine() {
+				//creates each input element 
+				newLineElement("inspot", "gname", "Given Name:", "text", "Sand");
+				newLineElement("inspot", "sname", " Surname:", "text", "Man");
+				newLineElementWithMinMax("inspot", "bday", " Solar Birth Day:", "number", 1, 31, "10");
+				newLineElementWithMinMax("inspot", "bmonth", " Solar Birth Month:", "number", 1, 12, "06");
+				newLineElement("inspot", "byear", " Solar Birth Year:", "number", 1997);
+				newLineCountry("inspot", "country", " Country:", "USA", "China");
+				var newelement = document.createElement("br");
+				document.getElementById("inspot").appendChild(newelement);
+				//iterate counter variable
+				index++;
+			}
+			//function for drop down country 
+			function newLineCountry(formid, name, label, option1, option2){
+				var newLabel=document.createElement("label");
+				newLabel.setAttribute("for", name+index);
+				newLabel.appendChild(document.createTextNode(label + " " ));
+				f = document.getElementById(formid);
+				f.appendChild(newLabel);
+				
+				//select element is created 
+				var newInput=document.createElement("select");
+				newInput.setAttribute("id", name+index);
+				var o = document.createElement("option");
+				o.setAttribute("value", option1);
+				//first option added to select element
+				o.appendChild(document.createTextNode(option1));
+				newInput.appendChild(o);
+				var o2 = document.createElement("option");
+				o2.setAttribute("value", option2);
+				//second option added to select element
+				o2.appendChild(document.createTextNode(option2));
+				newInput.appendChild(o2);
+				//select element is added to form
+				document.getElementById(formid).appendChild(newInput);
+			}
+			
+			function newLineElement(formid, name, label, dtype, placeholder){
+				//This section creates a new label for the input field
+				var newLabel=document.createElement("label");
+				newLabel.setAttribute("for",name+index);
+				newLabel.appendChild(document.createTextNode(label + " " ));
+				//new label added to form
+				f = document.getElementById(formid);
+				f.appendChild(newLabel);
+				//new input is added to form
+				var newInput=document.createElement("input");
+				newInput.setAttribute("id",name+index);
+				newInput.setAttribute("type",dtype);
+				newInput.setAttribute("placeholder", placeholder);
+				document.getElementById(formid).appendChild(newInput);
+			}
+			
+			//special function to create numeric input with min and max
+			function newLineElementWithMinMax(formid, name, label, dtype, min, max, placeholder){
+				//create new label element
+				var newLabel=document.createElement("label");
+				newLabel.setAttribute("for",name+index);
+				newLabel.appendChild(document.createTextNode(label + " " ));
+				//add label element to form
+				f = document.getElementById(formid);
+				f.appendChild(newLabel);
+				//create new input element
+				var newInput=document.createElement("input");
+				newInput.setAttribute("id",name+index);
+				newInput.setAttribute("type",dtype);
+				newInput.setAttribute("min", min);
+				newInput.setAttribute("max", max);
+				newInput.setAttribute("placeholder", placeholder);
+				//add new element to form
+				document.getElementById(formid).appendChild(newInput);
+			}
+			
+			//array for data of peopel 
+			var peopleArray = [];
+			//function generates the array
+			function createArray() {
+				for(i = 0; i < index; i++) {
+					peopleArray[i] = {
+						//appends data to the array
+						'gname'     :document.getElementById("gname"+i).value,
+						'sname'     :document.getElementById("sname"+i).value,
+						'bday'		:document.getElementById("bday"+i).value,
+						'bmonth'	:document.getElementById("bmonth"+i).value,
+						'byear'		:document.getElementById("byear"+i).value,
+						'country'   :document.getElementById("country"+i).value,
+						//function to return proper format of birthdates
+						'lBirthday'	:function() {
+										if(this.country=="China") return(this.byear+"-"+this.bmonth+"-"+this.bday);
+										else return(this.bmonth+"-"+this.bday+"-"+this.byear);
+									},
+						//function to return proper format of names 
+						'lname'		:function() {
+										if(this.country=="China") return(this.sname+" "+this.gname);
+										else return(this.gname+" "+this.sname);
+									},
+						//function formats the dates into acutal numbers  
+						'lage'		:function(){
+										//get current date and convert to numbers
+										d = new Date();
+										cday = parseInt(d.getDate());
+										cmonth = parseInt(d.getMonth());
+										cyear = parseInt(d.getFullYear());
+										tempAge=0;
+										//get birth date and convert to numbers
+										bmonth = parseInt(this.bmonth)-1;
+										byear = parseInt(this.byear);
+										bday = parseInt(this.bday);
+										//calculate age
+										tempAge = cyear - byear;
+										//adds one if country is China
+										if(this.country=="China") return tempAge+1;
+										else return tempAge;
+									},
+						//function to deterime which zodiac to use western or chinese						
+						'lzodiac'	:function(){
+										//Default value if incorrect date is entered
+										zodiac="Incorrect Date";
+										//Some mod to determine chinese ASTsign
+										if (this.country=="China"){
+											x = (1901 - parseInt(this.byear)) % 12;
+											if (x==0) zodiac = "Ox";
+											if (x==1||x==-11) zodiac = "Rat";
+											if (x==2||x==-10) zodiac = "Boar";
+											if (x==3||x==-9) zodiac = "Dog";
+											if (x==4||x==-8) zodiac = "Phoenix";
+											if (x==5||x==-7) zodiac = "Monkey";
+											if (x==6||x==-6) zodiac = "Sheep";
+											if (x==7||x==-5) zodiac = "Horse";
+											if (x==8||x==-4) zodiac = "Snake";
+											if (x==9||x==-3) zodiac = "Dragon";
+											if (x==10||x==-2)	zodiac = "Rabbit";
+											if (x==11||x==-1)	zodiac = "Tiger";
+											
+										}
+										//Mod to determine western ASTsign
+										else{
+											x = parseInt(this.bmonth);
+											y = parseInt(this.bday);
+											if (x == 1 && y >=20 || x == 2 && y <=18) {zodiac = "Aquarius";}
+											if (x == 2 && y >=19 || x == 3 && y <=20) {zodiac = "Pisces";}
+											if (x == 3 && y >=21 || x == 4 && y <=19) {zodiac = "Aries";}
+											if (x == 4 && y >=20 || x == 5 && y <=20) {zodiac = "Taurus";}
+											if (x == 5 && y >=21 || x == 6 && y <=21) {zodiac = "Gemini";}
+											if (x == 6 && y >=22 || x == 7 && y <=22) {zodiac = "Cancer";}
+											if (x == 7 && y >=23 || x == 8 && y <=22) {zodiac = "Leo";}
+											if (x == 8 && y >=23 || x == 9 && y <=22) {zodiac = "Virgo";}
+											if (x == 9 && y >=23 || x == 10 && y <=22) {zodiac = "Libra";}
+											if (x == 10 && y >=23 || x == 11 && y <=21) {zodiac = "Scorpio";}
+											if (x == 11 && y >=22 || x == 12 && y <=21) {zodiac = "Sagittarius";}
+											if (x == 12 && y >=22 || x == 1 && y <=19) {zodiac = "Capricorn";}
+										}
+										return zodiac;
+									}
+					};
+					arrayCreated = "true";
+	
+				}
+			}
+			//creates a table of values based on the peopleArray
+			function writeTable() {
+				//Make sure to generate the object array
+				if (arrayCreated != "true") alert("Click 'Generate Object Array' button!");
+				else{
+					var clearIt = document.getElementById("div1");
+					while (clearIt.firstPer) {
+						clearIt.removePer(clearIt.firstPer);
+					}
+					
+					//create table
+					newElement = document.createElement("table");
+					newElement.setAttribute("id", "table1");
+					newElement.setAttribute("border", 1);
+					div1.appendChild(newElement);
+					
+					//create row
+					newElement = document.createElement("tr");
+					newElement.setAttribute("id", "thr");
+					table1.appendChild(newElement);
+					
+					//create headers
+					newElement = document.createElement("th");
+					t=document.createTextNode("Local Name");
+					newElement.append(t);
+					thr.appendChild(newElement);
+					
+					newElement = document.createElement("th");
+					t=document.createTextNode("Local DOB");
+					newElement.append(t);
+					thr.appendChild(newElement);
+					
+					newElement = document.createElement("th");
+					t=document.createTextNode("Local Age");
+					newElement.append(t);
+					thr.appendChild(newElement);
+					
+					newElement = document.createElement("th");
+					t=document.createTextNode("Local Zodiac");
+					newElement.append(t);
+					thr.appendChild(newElement);
+					
+					//create entries for elements peoplearray
+					for (i=0; i<index; i++){
+						newElement = document.createElement("tr");
+						newElement.setAttribute("id", "tr"+i);
+						table1.appendChild(newElement);
+						reftr=document.getElementById("tr"+i);
+						
+						
+						newElement = document.createElement("td");
+						newElement.setAttribute("id", "tdLname"+i);
+						t = document.createTextNode(peopleArray[i].lname());
+						newElement.append(t);
+						reftr.appendChild(newElement);
+						
+						newElement = document.createElement("td");
+						newElement.setAttribute("id", "tdLDOB"+i);
+						t = document.createTextNode(peopleArray[i].lBirthday());
+						newElement.append(t);
+						reftr.appendChild(newElement);
+						
+						newElement = document.createElement("td");
+						newElement.setAttribute("id", "tdLAge"+i);
+						t = document.createTextNode(peopleArray[i].lage());
+						newElement.append(t);
+						reftr.appendChild(newElement);
+						
+						newElement = document.createElement("td");
+						newElement.setAttribute("id", "tdLZodiac"+i);
+						t = document.createTextNode(peopleArray[i].lzodiac());
+						newElement.append(t);
+						reftr.appendChild(newElement);
+						
+						
+					}
+				}
+			}
+		</script>
+	</body>
+</html>
